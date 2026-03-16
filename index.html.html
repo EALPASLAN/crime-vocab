@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Crime Vocab">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0f0f">
+<title>Crime Vocabulary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0ede8;
+    --text2: rgba(240,237,232,0.5);
+    --text3: rgba(240,237,232,0.28);
+    --accent: #c8a96e;
+    --accent-dim: rgba(200,169,110,0.15);
+    --green: #4caf7d;
+    --green-dim: rgba(76,175,125,0.15);
+    --red: #e05c5c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* Header */
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,15,15,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid var(--border);
+    padding: env(safe-area-inset-top, 0) 0 0;
+  }
+  .header-inner {
+    padding: 16px 20px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px; font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .header h1 em { color: var(--accent); font-style: italic; }
+  .progress-bar-wrap { height: 2px; background: var(--surface2); }
+  .progress-bar { height: 2px; background: var(--accent); transition: width 0.4s ease; width: 0%; }
+
+  /* Stats */
+  .stats-row {
+    display: flex; gap: 8px; padding: 12px 20px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .stat-chip {
+    font-size: 12px; font-weight: 400;
+    padding: 5px 12px; border-radius: 20px;
+    border: 0.5px solid var(--border);
+    color: var(--text2);
+  }
+  .stat-chip b { color: var(--text); font-weight: 500; }
+  .stat-chip.green { border-color: rgba(76,175,125,0.3); background: var(--green-dim); color: var(--green); }
+  .stat-chip.green b { color: var(--green); }
+
+  /* Filter tabs */
+  .filters {
+    display: flex; gap: 6px; padding: 12px 20px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    flex-shrink: 0; font-size: 12px; font-weight: 400;
+    padding: 6px 14px; border-radius: 20px;
+    border: 0.5px solid var(--border);
+    background: transparent; color: var(--text2);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filter-btn.active {
+    background: var(--accent-dim);
+    border-color: rgba(200,169,110,0.4);
+    color: var(--accent);
+  }
+
+  /* Cards grid */
+  .cards-wrap { padding: 16px 20px 40px; }
+  .section-label {
+    font-size: 10px; font-weight: 500; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text3);
+    margin: 20px 0 10px; padding-bottom: 8px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .section-label:first-child { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+  /* Card flip */
+  .card-outer {
+    perspective: 800px;
+    min-height: 100px;
+    cursor: pointer;
+  }
+  .card-inner {
+    position: relative; width: 100%; min-height: 100px;
+    transform-style: preserve-3d;
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  .card-outer.flipped .card-inner { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; width: 100%; min-height: 100px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 14px;
+    border: 0.5px solid var(--border);
+    padding: 14px 12px 12px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .card-front { background: var(--surface); }
+  .card-back { background: var(--surface2); transform: rotateY(180deg); }
+  .card-outer.known .card-front,
+  .card-outer.known .card-back {
+    border-color: rgba(76,175,125,0.35);
+    background: rgba(76,175,125,0.07);
+  }
+
+  .card-label {
+    font-size: 10px; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .card-word {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    line-height: 1.3; flex: 1;
+  }
+  .card-tr {
+    font-size: 13px; color: var(--text2); line-height: 1.35;
+    margin-top: 6px;
+  }
+  .card-hint {
+    font-size: 10px; color: var(--text3); margin-top: 8px;
+  }
+
+  /* Know btn */
+  .know-btn {
+    position: absolute; top: 8px; right: 8px;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 0.5px solid var(--border);
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: transparent;
+    transition: all 0.2s; z-index: 10;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .card-outer.known .know-btn {
+    background: var(--green-dim);
+    border-color: rgba(76,175,125,0.4);
+    color: var(--green);
+  }
+
+  /* Empty state */
+  .empty {
+    text-align: center; padding: 60px 20px;
+    color: var(--text3); font-size: 14px; line-height: 1.6;
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface); border: 0.5px solid var(--border);
+    color: var(--text2); font-size: 13px; padding: 10px 18px;
+    border-radius: 20px; opacity: 0; transition: all 0.25s;
+    pointer-events: none; white-space: nowrap; z-index: 999;
+    backdrop-filter: blur(10px);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* PWA install banner */
+  .install-banner {
+    background: var(--surface); border-bottom: 0.5px solid var(--border);
+    padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+    font-size: 12px; color: var(--text2);
+  }
+  .install-banner b { color: var(--text); font-weight: 500; }
+  .install-banner .close-btn {
+    margin-left: auto; background: transparent; border: none;
+    color: var(--text3); font-size: 16px; cursor: pointer; padding: 4px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .install-banner .icon { font-size: 24px; flex-shrink: 0; }
+  #install-banner { display: none; }
+</style>
+</head>
+<body>
+
+<div id="install-banner" class="install-banner">
+  <span class="icon">📱</span>
+  <div>
+    <b>Ana Ekrana Ekle</b><br>
+    iPhone: Safari → Paylaş → Ana Ekrana Ekle
+  </div>
+  <button class="close-btn" onclick="document.getElementById('install-banner').style.display='none'">×</button>
+</div>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>Crime <em>&</em> Law</h1>
+    <div style="font-size:12px;color:var(--text3)">EN → TR</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-chip">Toplam: <b id="total">0</b></div>
+  <div class="stat-chip green">✓ Öğrenildi: <b id="known-count">0</b></div>
+  <div class="stat-chip">Kalan: <b id="remaining">0</b></div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('all',this)">Tümü</button>
+  <button class="filter-btn" onclick="setFilter('crime',this)">Suçlar</button>
+  <button class="filter-btn" onclick="setFilter('person',this)">Kişiler</button>
+  <button class="filter-btn" onclick="setFilter('verb',this)">Fiiller</button>
+  <button class="filter-btn" onclick="setFilter('court',this)">Mahkeme</button>
+  <button class="filter-btn" onclick="setFilter('unknown',this)">Bilinmeyenler</button>
+</div>
+
+<div class="cards-wrap" id="cards-wrap"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const vocab = [
+  {en:"Blackmail",tr:"Şantaj",type:"crime",cat:"crime"},
+  {en:"Blackmailer",tr:"Şantajcı",type:"person",cat:"crime"},
+  {en:"To blackmail",tr:"Şantaj yapmak",type:"verb",cat:"crime"},
+  {en:"Bribery",tr:"Rüşvet",type:"crime",cat:"crime"},
+  {en:"To bribe",tr:"Rüşvet vermek",type:"verb",cat:"crime"},
+  {en:"Burglary",tr:"Haneye tecavüz / Ev hırsızlığı",type:"crime",cat:"crime"},
+  {en:"Burglar",tr:"Ev hırsızı",type:"person",cat:"crime"},
+  {en:"To break in / To burgle",tr:"Zorla girmek / Ev soymak",type:"verb",cat:"crime"},
+  {en:"Drug dealing",tr:"Uyuşturucu ticareti",type:"crime",cat:"crime"},
+  {en:"Drug dealer",tr:"Uyuşturucu satıcısı",type:"person",cat:"crime"},
+  {en:"To sell drugs",tr:"Uyuşturucu satmak",type:"verb",cat:"crime"},
+  {en:"Fraud",tr:"Dolandırıcılık",type:"crime",cat:"crime"},
+  {en:"Fraudster",tr:"Dolandırıcı",type:"person",cat:"crime"},
+  {en:"To commit fraud",tr:"Dolandırıcılık yapmak",type:"verb",cat:"crime"},
+  {en:"Hacking",tr:"Bilgisayar korsanlığı",type:"crime",cat:"crime"},
+  {en:"Hacker",tr:"Bilgisayar korsanı",type:"person",cat:"crime"},
+  {en:"To hack (into)",tr:"Sisteme sızmak / Hacklemek",type:"verb",cat:"crime"},
+  {en:"Hijacking",tr:"Araç / Uçak kaçırma",type:"crime",cat:"crime"},
+  {en:"Hijacker",tr:"Hava korsanı",type:"person",cat:"crime"},
+  {en:"To hijack",tr:"Araç kaçırmak",type:"verb",cat:"crime"},
+  {en:"Kidnapping",tr:"Adam kaçırma",type:"crime",cat:"crime"},
+  {en:"Kidnapper",tr:"Adam kaçıran kişi",type:"person",cat:"crime"},
+  {en:"To kidnap",tr:"Adam kaçırmak",type:"verb",cat:"crime"},
+  {en:"Mugging",tr:"Sokakta gasp / Kapkaç",type:"crime",cat:"crime"},
+  {en:"Mugger",tr:"Gaspçı / Kapkaççı",type:"person",cat:"crime"},
+  {en:"To mug",tr:"Gasp etmek",type:"verb",cat:"crime"},
+  {en:"Murder",tr:"Cinayet",type:"crime",cat:"crime"},
+  {en:"Murderer",tr:"Katil",type:"person",cat:"crime"},
+  {en:"To murder",tr:"Cinayet işlemek / Öldürmek",type:"verb",cat:"crime"},
+  {en:"Rape",tr:"Tecavüz",type:"crime",cat:"crime"},
+  {en:"Rapist",tr:"Tecavüzcü",type:"person",cat:"crime"},
+  {en:"To rape",tr:"Tecavüz etmek",type:"verb",cat:"crime"},
+  {en:"Robbery",tr:"Soygun (banka, dükkan vb.)",type:"crime",cat:"crime"},
+  {en:"Robber",tr:"Soyguncu",type:"person",cat:"crime"},
+  {en:"To rob",tr:"Soygun yapmak / Soymak",type:"verb",cat:"crime"},
+  {en:"Smuggling",tr:"Kaçakçılık",type:"crime",cat:"crime"},
+  {en:"Smuggler",tr:"Kaçakçı",type:"person",cat:"crime"},
+  {en:"To smuggle",tr:"Kaçakçılık yapmak",type:"verb",cat:"crime"},
+  {en:"Stalking",tr:"Gizli takip / Taciz",type:"crime",cat:"crime"},
+  {en:"Stalker",tr:"Tacizci takipçi",type:"person",cat:"crime"},
+  {en:"To stalk",tr:"Gizlice takip etmek",type:"verb",cat:"crime"},
+  {en:"Terrorism",tr:"Terörizm",type:"crime",cat:"crime"},
+  {en:"Terrorist",tr:"Terörist",type:"person",cat:"crime"},
+  {en:"To set off bombs",tr:"Bomba patlatmak",type:"verb",cat:"crime"},
+  {en:"Theft",tr:"Hırsızlık (genel)",type:"crime",cat:"crime"},
+  {en:"Thief",tr:"Hırsız",type:"person",cat:"crime"},
+  {en:"To steal",tr:"Çalmak",type:"verb",cat:"crime"},
+  {en:"Vandalism",tr:"Vandallık / Mala zarar verme",type:"crime",cat:"crime"},
+  {en:"Vandal",tr:"Vandal (mala zarar veren kişi)",type:"person",cat:"crime"},
+  {en:"To vandalize",tr:"Mala zarar vermek / Tahrip etmek",type:"verb",cat:"crime"},
+  {en:"Commit",tr:"(Suç) işlemek",type:"verb",cat:"court"},
+  {en:"Investigate",tr:"Soruşturmak / Araştırmak",type:"verb",cat:"court"},
+  {en:"Catch",tr:"Yakalamak",type:"verb",cat:"court"},
+  {en:"Arrest",tr:"Tutuklamak",type:"verb",cat:"court"},
+  {en:"Question",tr:"Sorgulamak",type:"verb",cat:"court"},
+  {en:"Charge",tr:"Suçlamak (resmi makamca)",type:"verb",cat:"court"},
+  {en:"Court",tr:"Mahkeme",type:"crime",cat:"court"},
+  {en:"Accused",tr:"Sanık / Suçlanan kişi",type:"person",cat:"court"},
+  {en:"Acquitted",tr:"Beraat etmiş / Suçsuz bulunmuş",type:"crime",cat:"court"},
+  {en:"Evidence / Proof",tr:"Kanıt / Delil",type:"crime",cat:"court"},
+  {en:"Guilty",tr:"Suçlu",type:"crime",cat:"court"},
+  {en:"Judge",tr:"Hakim",type:"person",cat:"court"},
+  {en:"Jury",tr:"Jüri",type:"person",cat:"court"},
+  {en:"Punishment",tr:"Ceza",type:"crime",cat:"court"},
+  {en:"Sentenced",tr:"Mahkum edilmiş / Cezaya çarptırılmış",type:"crime",cat:"court"},
+  {en:"Verdict",tr:"Karar (jürinin veya hakimin kararı)",type:"crime",cat:"court"},
+  {en:"Witnesses",tr:"Görgü tanıkları",type:"person",cat:"court"},
+];
+
+let known = new Set(JSON.parse(localStorage.getItem('known')||'[]'));
+let flipped = new Set();
+let activeFilter = 'all';
+
+function saveKnown() {
+  localStorage.setItem('known', JSON.stringify([...known]));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  flipped.clear();
+  render();
+}
+
+function toggleFlip(idx) {
+  if (flipped.has(idx)) flipped.delete(idx);
+  else flipped.add(idx);
+  const outer = document.getElementById('co-'+idx);
+  if (outer) outer.classList.toggle('flipped', flipped.has(idx));
+}
+
+function toggleKnown(idx, e) {
+  e.stopPropagation();
+  if (known.has(idx)) {
+    known.delete(idx);
+    showToast('Tekrar listesine eklendi');
+  } else {
+    known.add(idx);
+    showToast('Öğrenildi olarak işaretlendi ✓');
+  }
+  saveKnown();
+  updateStats();
+  const outer = document.getElementById('co-'+idx);
+  if (outer) {
+    outer.classList.toggle('known', known.has(idx));
+    outer.querySelector('.know-btn').textContent = known.has(idx) ? '✓' : '';
+  }
+  if (activeFilter === 'unknown') setTimeout(render, 400);
+}
+
+function updateStats() {
+  const total = vocab.length;
+  const k = known.size;
+  document.getElementById('total').textContent = total;
+  document.getElementById('known-count').textContent = k;
+  document.getElementById('remaining').textContent = total - k;
+  const pct = total > 0 ? (k / total * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function getFiltered() {
+  if (activeFilter === 'all') return vocab.map((w,i)=>({w,i}));
+  if (activeFilter === 'court') return vocab.map((w,i)=>({w,i})).filter(({w})=>w.cat==='court');
+  if (activeFilter === 'unknown') return vocab.map((w,i)=>({w,i})).filter(({i})=>!known.has(i));
+  return vocab.map((w,i)=>({w,i})).filter(({w})=>w.type===activeFilter);
+}
+
+function typeLabel(t) {
+  return t==='crime'?'Suç':t==='person'?'Kişi':'Fiil';
+}
+
+function render() {
+  const filtered = getFiltered();
+  const wrap = document.getElementById('cards-wrap');
+  if (!filtered.length) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">🎉</div>Tüm kelimeleri öğrendiniz!<br>Harika iş!</div>';
+    return;
+  }
+  const groups = {crime:[],person:[],verb:[]};
+  filtered.forEach(({w,i}) => { if(groups[w.type]) groups[w.type].push({w,i}); });
+  const order = ['crime','person','verb'];
+  const labels = {crime:'Suçlar',person:'Kişiler',verb:'Fiiller'};
+  let html = '';
+  order.forEach(g => {
+    if (!groups[g].length) return;
+    html += `<div class="section-label">${labels[g]}</div><div class="grid">`;
+    groups[g].forEach(({w,i}) => {
+      const isFlipped = flipped.has(i);
+      const isKnown = known.has(i);
+      html += `<div class="card-outer${isFlipped?' flipped':''}${isKnown?' known':''}" id="co-${i}" onclick="toggleFlip(${i})">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <button class="know-btn" onclick="toggleKnown(${i},event)">${isKnown?'✓':''}</button>
+            <div>
+              <div class="card-label">${typeLabel(w.type)}</div>
+              <div class="card-word">${w.en}</div>
+            </div>
+            <div class="card-hint">Çeviri için dokun</div>
+          </div>
+          <div class="card-face card-back">
+            <button class="know-btn" onclick="toggleKnown(${i},event)">${isKnown?'✓':''}</button>
+            <div>
+              <div class="card-label">${typeLabel(w.type)}</div>
+              <div class="card-word">${w.en}</div>
+              <div class="card-tr">${w.tr}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+  updateStats();
+}
+
+// Show install hint on mobile browsers (not standalone)
+if (!window.navigator.standalone && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+  document.getElementById('install-banner').style.display = 'flex';
+}
+
+render();
+</script>
+</body>
+</html>
