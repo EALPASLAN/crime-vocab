@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulary Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+[data-theme="light"]{
+  --bg:#fff8f5;--bg2:#ffffff;--border:#f0c8c0;--text:#3d1a1a;--muted:#9b6b6b;
+  --accent:#c8355a;--gold:#b8860b;--green:#2e8b57;--red:#c0392b;
+  --shadow:rgba(200,53,90,.10);--card:#ffffff;--chip-bg:#fce8f0;
+  --chip-hov:#f9c0d4;--chip-brd:#e8a0b8;--score-bg:#fff0ea;
+  --hdr:linear-gradient(135deg,#fff0f5 0%,#ffe8f0 50%,#fff8f0 100%);
+  --btn1-bg:#c8355a;--btn1-txt:#fff;--btn2-bg:#f0e0e8;--btn2-txt:#8b2040;
+  --blank-c:#c8355a;--ok-c:#2e8b57;--no-c:#c0392b;
+}
+[data-theme="dark"]{
+  --bg:#1a1018;--bg2:#22181f;--border:#4a2a38;--text:#f5dce8;--muted:#b08898;
+  --accent:#e0607a;--gold:#d4a840;--green:#4ecb88;--red:#e05060;
+  --shadow:rgba(0,0,0,.4);--card:#2a1e25;--chip-bg:#3a2030;
+  --chip-hov:#4a2840;--chip-brd:#6a3855;--score-bg:#2a1e25;
+  --hdr:linear-gradient(135deg,#22141c 0%,#2a1820 50%,#201418 100%);
+  --btn1-bg:#e0607a;--btn1-txt:#fff;--btn2-bg:#3a2030;--btn2-txt:#e8a0c0;
+  --blank-c:#e0607a;--ok-c:#4ecb88;--no-c:#e05060;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+
+header{background:var(--hdr);border-bottom:2px solid var(--border);padding:14px 16px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px var(--shadow);}
+.hdr{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.title-blk{flex:1;min-width:150px;}
+h1{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(18px,3vw,30px);color:var(--accent);line-height:1.1;}
+h1 b{font-style:normal;}
+.sub{font-size:10.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.set-badge{display:inline-block;background:var(--accent);color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 9px;border-radius:10px;margin-top:3px;}
+.scores{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.sp{background:var(--score-bg);border:1.5px solid var(--border);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:4px;}
+.sp .n{font-size:16px;line-height:1;}
+.sp .ok{color:var(--green);}
+.sp .no{color:var(--red);}
+.sp .pct{color:var(--accent);}
+.theme-btn{background:var(--chip-bg);border:1.5px solid var(--chip-brd);color:var(--text);font-size:16px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.theme-btn:hover{transform:rotate(20deg) scale(1.1);}
+
+.prog-wrap{height:5px;background:var(--border);}
+#prog{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s ease;width:0%;border-radius:0 3px 3px 0;}
+
+.toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;}
+.btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:12.5px;padding:7px 16px;border-radius:16px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .17s;}
+.btn1{background:var(--btn1-bg);color:var(--btn1-txt);}
+.btn1:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 3px 10px var(--shadow);}
+.btn2{background:var(--btn2-bg);color:var(--btn2-txt);}
+.btn2:hover{filter:brightness(.95);}
+
+main{max-width:1280px;margin:0 auto;padding:22px 12px 60px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+
+.qcard{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:16px 15px 13px;box-shadow:0 2px 10px var(--shadow);transition:box-shadow .2s;animation:fadeUp .35s ease both;position:relative;overflow:hidden;}
+.qcard:hover{box-shadow:0 5px 20px var(--shadow);}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:13px 13px 0 0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.qnum{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.sentence{font-size:14.5px;font-weight:700;line-height:1.7;margin-bottom:12px;color:var(--text);}
+.blank{display:inline-block;min-width:86px;padding:1px 5px 2px;border-bottom:2.5px solid var(--blank-c);color:var(--blank-c);font-weight:800;font-size:14.5px;text-align:center;transition:color .25s,border-color .25s;vertical-align:bottom;line-height:1.4;}
+.blank.ok{color:var(--ok-c);border-color:var(--ok-c);}
+.blank.no{color:var(--no-c);border-color:var(--no-c);}
+@keyframes popIn{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.blank.pop{animation:popIn .3s ease;}
+.blank.shake{animation:shakeX .35s ease;}
+
+.chips-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:var(--chip-bg);border:1.5px solid var(--chip-brd);color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:6px 13px;border-radius:16px;cursor:pointer;transition:all .17s;user-select:none;}
+.chip:hover:not(:disabled){background:var(--chip-hov);border-color:var(--accent);color:var(--accent);transform:translateY(-2px);box-shadow:0 3px 8px var(--shadow);}
+.chip:disabled{cursor:not-allowed;}
+.chip.cok{background:rgba(46,139,87,.15);border-color:var(--green);color:var(--green);}
+.chip.cno{background:rgba(192,57,43,.12);border-color:var(--red);color:var(--red);text-decoration:line-through;}
+
+.result{margin-top:10px;padding:9px 11px;border-radius:8px;font-size:12px;font-weight:700;display:none;line-height:1.55;}
+.result.show{display:block;}
+.result.ok{background:rgba(46,139,87,.1);border-left:3.5px solid var(--green);color:var(--green);}
+.result.no{background:rgba(192,57,43,.09);border-left:3.5px solid var(--red);color:var(--red);}
+.result .mline{font-weight:600;color:var(--text);opacity:.8;font-size:11px;margin-top:3px;font-style:italic;}
+.result .trline{font-weight:600;color:var(--muted);font-size:11px;margin-top:2px;}
+
+#finish{display:none;background:var(--hdr);border:2px solid var(--border);border-radius:16px;padding:26px 18px;text-align:center;margin-bottom:22px;box-shadow:0 4px 18px var(--shadow);animation:fadeUp .5s ease;}
+#finish.show{display:block;}
+#finish h2{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,44px);color:var(--accent);}
+#finish p{color:var(--muted);font-size:13.5px;margin-top:5px;}
+
+@media(max-width:560px){.grid{grid-template-columns:1fr;}.hdr{justify-content:center;text-align:center;}.theme-btn{margin-left:0;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="title-blk">
+      <h1><b>Vocabulary</b> Test</h1>
+      <div class="sub">Fill in the blank — boşluğu doldur</div>
+      <div class="set-badge" id="set-badge">SET 1 / 2</div>
+    </div>
+    <div class="scores">
+      <div class="sp">✅ <span class="n ok" id="s-ok">0</span></div>
+      <div class="sp">❌ <span class="n no" id="s-no">0</span></div>
+      <div class="sp">🎯 <span class="n pct" id="s-pct">—</span></div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="tbtn">🌙</button>
+  </div>
+</header>
+
+<div class="prog-wrap"><div id="prog"></div></div>
+
+<div class="toolbar">
+  <button class="btn btn2" onclick="doShuffle()">🔀 Karıştır</button>
+  <button class="btn btn2" onclick="doClear()">🧹 Temizle</button>
+  <button class="btn btn1" onclick="doRestart()">🔄 Yeniden Başla</button>
+</div>
+
+<main>
+  <div id="finish"><h2 id="fscore">—</h2><p id="fmsg">—</p></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script>
+// ── WORD DICTIONARY (meanings + Turkish) from the two vocabulary sheets ──────
+const DICT = {
+  "isolation":     { en:"being alone; disconnected from others",          tr:"yalnızlık; başkalarından kopuk olma" },
+  "accountability":{ en:"the responsibility for one's actions",           tr:"eylemlerinin sorumluluğunu üstlenmek" },
+  "distort":       { en:"to twist reality; make something look wrong",    tr:"gerçeği çarpıtmak; yanlış göstermek" },
+  "comparison":    { en:"judging differences between things",             tr:"şeyler arasındaki farkları değerlendirme" },
+  "algorithm":     { en:"a system controlling content you see",           tr:"gördüğün içeriği kontrol eden sistem" },
+  "public opinion":{ en:"the beliefs of the general public",              tr:"genel kamuoyunun inançları ve düşünceleri" },
+  "pressure":      { en:"stress to act in a certain way",                 tr:"belirli şekilde hareket etme baskısı" },
+  "exposure":      { en:"contact with something; being seen",             tr:"bir şeyle temas; görünür olma" },
+  "apologize":     { en:"to say sorry for something you did",             tr:"yaptığın bir şey için özür dilemek" },
+  "reputation":    { en:"the opinion people have about someone",          tr:"insanların biri hakkındaki genel görüşü" },
+  "addiction":     { en:"strong dependence on something",                 tr:"bir şeye güçlü bağımlılık" },
+  "artificial":    { en:"not real; made to look better than it is",       tr:"gerçek olmayan; yapay; sahte" },
+  "criticism":     { en:"the expression of disapproval",                  tr:"onaylamama ifadesi; eleştiri" },
+  "validate":      { en:"to confirm worth; to approve",                   tr:"değerini onaylamak; doğrulamak" },
+  "fairness":      { en:"treating people equally and with justice",       tr:"insanlara eşit ve adaletli davranmak" },
+  "engagement":    { en:"interaction level; how much people interact",    tr:"etkileşim düzeyi" },
+  "influence":     { en:"to affect decisions or behaviour",               tr:"kararları veya davranışı etkilemek" },
+  "freedom":       { en:"the right to speak or act freely",               tr:"özgürce konuşma veya hareket etme hakkı" },
+  "judge":         { en:"to form an opinion about someone",               tr:"biri hakkında fikir oluşturmak; yargılamak" },
+  "consequences":  { en:"the results of an action",                       tr:"bir eylemin sonuçları; yaptırımlar" },
+  "impact":        { en:"a strong effect on something",                   tr:"bir şey üzerinde güçlü etki" },
+  "overreact":     { en:"to react more strongly than needed",             tr:"gereğinden güçlü tepki vermek" },
+  "authentic":     { en:"real and genuine; not fake",                     tr:"gerçek ve özgün; sahte olmayan" },
+  "bias":          { en:"an unfair preference for one side",              tr:"bir taraf için haksız tercih; önyargı" },
+  "silence":       { en:"to stop someone from speaking",                  tr:"birini susturmak" },
+  "consume":       { en:"to take in content; use up",                     tr:"içerik tüketmek; kullanmak" },
+  "manipulate":    { en:"to control someone unfairly",                    tr:"birini haksız yere kontrol etmek" },
+  "justice":       { en:"fairness and moral right",                       tr:"adalet ve ahlaki hak" },
+  "attention span":{ en:"the ability to focus for a period of time",      tr:"belirli bir süre odaklanabilme yetisi" },
+  "uncertain":     { en:"not sure about what will happen",                tr:"ne olacağından emin olmayan; kararsız" },
+  "risk":          { en:"the possibility of danger or bad outcome",       tr:"tehlike ya da kötü sonuç olasılığı" },
+  "long-term":     { en:"lasting or relating to a long period of time",   tr:"uzun vadeli; uzun süreye ait" },
+  "community":     { en:"a group of people in the same area",             tr:"aynı yerde yaşayan insan topluluğu" },
+  "offensive":     { en:"causing anger or disrespect",                    tr:"öfke veya saygısızlığa yol açan; saldırgan" },
+  "portable":      { en:"easy to carry or move from place to place",      tr:"kolayca taşınabilen" },
+  "security":      { en:"freedom from danger or worry",                   tr:"tehlikeden veya endişeden uzak olma" },
+  "validation":    { en:"the act of seeking approval from others",        tr:"başkalarından onay arama eylemi" },
+  "distraction":   { en:"something that takes your attention away",       tr:"dikkatini dağıtan şey" },
+  "doubt":         { en:"a feeling of uncertainty or disbelief",          tr:"belirsizlik veya inanmama hissi; şüphe" },
+};
+
+// ── ALL 60 QUESTIONS ──────────────────────────────────────────────────────────
+const ALL_Q = [
+  { s:"Excessive use of social media can lead to a state of ___, where a person feels disconnected from the real world.", ans:"isolation",      opts:["engagement","isolation","fairness","accountability"] },
+  { s:'Some people believe that "cancel culture" is a way to ensure ___ for public figures.',                             ans:"accountability",  opts:["addiction","bias","accountability","artificial"] },
+  { s:"It is easy to ___ the truth by using digital filters on your photos.",                                             ans:"distort",         opts:["distort","validate","apologize","judge"] },
+  { s:"Constant ___ with other people's \"perfect\" lives can lower a person's self-esteem.",                             ans:"comparison",      opts:["infrastructure","comparison","sequence","consequences"] },
+  { s:"The ___ used by social media apps determines which videos you see first.",                                          ans:"algorithm",       opts:["addiction","criticism","algorithm","impact"] },
+  { s:"When a celebrity makes a mistake, the ___ of the general public can change very quickly.",                         ans:"public opinion",  opts:["public opinion","artificial","portable","exposure"] },
+  { s:"Many teenagers feel intense ___ to look perfect in every post they share.",                                        ans:"pressure",        opts:["justice","pressure","facilities","income"] },
+  { s:"Sharing your location online increases your ___ to potential security risks.",                                     ans:"exposure",        opts:["authentic","exposure","sacrifice","silence"] },
+  { s:"If you realize you have hurt someone's feelings, the best thing to do is to ___.",                                 ans:"apologize",       opts:["manipulate","apologize","consume","distort"] },
+  { s:"A person's ___ can be destroyed in a single day due to a viral post.",                                             ans:"reputation",      opts:["reputation","impact","freedom","influence"] },
+  { s:"Social media ___ is becoming a serious mental health issue for young people.",                                     ans:"addiction",       opts:["addiction","fairness","silence","consequence"] },
+  { s:"Some influencers create ___ lifestyles that do not reflect their real daily lives.",                               ans:"artificial",      opts:["authentic","artificial","portable","permanent"] },
+  { s:"Online ___ can be very harsh and sometimes crosses the line into bullying.",                                       ans:"criticism",       opts:["criticism","validation","income","facilities"] },
+  { s:"We often seek likes and comments to ___ our feelings and opinions.",                                               ans:"validate",        opts:["distort","manipulate","validate","overreact"] },
+  { s:"It is important to treat everyone with ___, even if you disagree with them online.",                               ans:"fairness",        opts:["bias","fairness","risk","addiction"] },
+  { s:"Companies try to increase user ___ by making their apps more interactive.",                                        ans:"engagement",      opts:["engagement","isolation","silence","doubt"] },
+  { s:"Algorithms have the power to ___ what we think by showing us specific content.",                                   ans:"influence",       opts:["influence","apologize","sacrifice","infrastructure"] },
+  { s:"Freedom of speech is a fundamental ___ that should be protected in digital spaces.",                               ans:"freedom",         opts:["pressure","freedom","pollution","addiction"] },
+  { s:"Before you ___ someone's actions, you should try to understand the whole story.",                                  ans:"judge",           opts:["judge","consume","validate","distort"] },
+  { s:"Every action taken on the internet has ___, even if we don't see them immediately.",                               ans:"consequences",    opts:["comparisons","consequences","algorithms","incomes"] },
+  { s:"The ___ of social media on modern communication is undeniably huge.",                                              ans:"impact",          opts:["impact","portable","justice","bias"] },
+  { s:"People sometimes ___ to minor mistakes because of the fast-paced nature of the internet.",                         ans:"overreact",       opts:["overreact","apologize","silence","validate"] },
+  { s:"It is very hard to find ___ and genuine content in a world of filters.",                                           ans:"authentic",       opts:["artificial","authentic","suspicious","crowded"] },
+  { s:"A person who has a ___ toward a certain group may not give fair judgments.",                                       ans:"bias",            opts:["bias","reputation","sacrifice","facility"] },
+  { s:"Cancel culture can sometimes ___ minority voices instead of helping them.",                                        ans:"silence",         opts:["silence","engage","manipulate","influence"] },
+  { s:"People tend to ___ huge amounts of content every day without thinking deeply.",                                    ans:"consume",         opts:["consume","apologize","judge","distort"] },
+  { s:"Apps often ___ users by sending notifications at specific times to keep them active.",                             ans:"manipulate",      opts:["validate","manipulate","silence","overreact"] },
+  { s:"In a fair society, everyone should have the right to seek ___ for wrongdoings.",                                   ans:"justice",         opts:["pressure","justice","isolation","exposure"] },
+  { s:"Many people have a very short ___ because of fast-scrolling video apps.",                                          ans:"attention span",  opts:["attention span","infrastructure","reputation","public opinion"] },
+  { s:'Is "cancel culture" a form of ___ or just digital bullying?',                                                     ans:"justice",         opts:["algorithm","justice","addiction","artificial"] },
+  { s:"If you are ___ about the truth of a post, you should check other sources.",                                        ans:"uncertain",       opts:["uncertain","authentic","crowded","portable"] },
+  { s:"The ___ of a post can be measured by the number of shares and comments it gets.",                                  ans:"engagement",      opts:["engagement","criticism","bias","sacrifice"] },
+  { s:"Using social media while driving is a major ___ that can lead to accidents.",                                      ans:"risk",            opts:["risk","income","facility","fairness"] },
+  { s:"Sometimes, people feel a sense of ___ when they don't receive enough likes.",                                      ans:"isolation",       opts:["isolation","reputation","accountability","freedom"] },
+  { s:"The information we see online can ___ our perception of reality.",                                                 ans:"distort",         opts:["distort","apologize","validate","consume"] },
+  { s:"Many jobs now require a ___ commitment to learning digital skills.",                                               ans:"long-term",       opts:["long-term","portable","suspicious","crowded"] },
+  { s:"A healthy ___ involves listening to different perspectives, not just one.",                                        ans:"community",       opts:["community","addiction","isolation","pollution"] },
+  { s:"Some comments are considered ___ because they show disrespect to others.",                                         ans:"offensive",       opts:["offensive","authentic","stable","calm"] },
+  { s:"It is easy to ___ the public's view by spreading false information.",                                              ans:"manipulate",      opts:["manipulate","judge","silence","engage"] },
+  { s:"High levels of ___ can lead to stress and anxiety in young adults.",                                               ans:"pressure",        opts:["pressure","infrastructure","income","traffic"] },
+  { s:"Teachers often ___ their students' work to provide feedback.",                                                     ans:"criticize",       opts:["criticize","consume","overreact","apologize"] },
+  { s:"Digital tools are very ___; you can use them anywhere at any time.",                                               ans:"portable",        opts:["portable","permanent","biased","offensive"] },
+  { s:"We must be careful about the ___ of our data on the internet.",                                                   ans:"security",        opts:["security","passion","doubt","comparison"] },
+  { s:"An influencer's ___ depends on their ability to connect with their audience.",                                     ans:"influence",       opts:["influence","justice","risk","sacrifice"] },
+  { s:"The internet should be a place where ___ of expression is respected.",                                             ans:"freedom",         opts:["freedom","addiction","algorithm","pressure"] },
+  { s:"When a mob attacks a person online, it is often called digital ___.",                                              ans:"justice",         opts:["justice","facility","income","pollution"] },
+  { s:"Learning to be ___ means being honest about who you really are online.",                                           ans:"authentic",       opts:["authentic","artificial","suspicious","portable"] },
+  { s:"The constant ___ of social media can make it hard to focus on long tasks.",                                        ans:"distraction",     opts:["distraction","infrastructure","accountability","fairness"] },
+  { s:"Public figures must take ___ for the things they say in their videos.",                                            ans:"accountability",  opts:["accountability","addiction","exposure","bias"] },
+  { s:"I have some ___ about whether that news story is actually true.",                                                  ans:"doubt",           opts:["doubt","engagement","justice","freedom"] },
+  { s:"Many people use social media for personal ___, hoping to become famous.",                                          ans:"validation",      opts:["validation","silence","sacrifice","pollution"] },
+  { s:"We should not ___ to every negative comment we see on our profile.",                                               ans:"overreact",       opts:["overreact","consume","influence","distort"] },
+  { s:"It is unfair to ___ someone based only on one mistake they made years ago.",                                       ans:"judge",           opts:["judge","apologize","validate","engage"] },
+  { s:"The ___ of digital media is changing the way children learn.",                                                     ans:"impact",          opts:["impact","income","infrastructure","sacrifice"] },
+  { s:"Is it possible to have an ___ conversation in a comment section full of anger?",                                   ans:"authentic",       opts:["authentic","artificial","offensive","crowded"] },
+  { s:"Many influencers lose their ___ if they are caught lying to their followers.",                                     ans:"reputation",      opts:["reputation","algorithm","pressure","facility"] },
+  { s:"The ___ of fake news is a major problem for modern society.",                                                      ans:"exposure",        opts:["exposure","justice","fairness","silence"] },
+  { s:"Finding a balance between online and offline life is a ___ goal for everyone.",                                    ans:"long-term",       opts:["long-term","portable","suspicious","biased"] },
+  { s:"When we only follow people who agree with us, we create a ___ in our worldview.",                                  ans:"bias",            opts:["bias","freedom","reputation","consequence"] },
+  // Extra "criticize" entry fix — reuse word with slightly different phrasing
+  { s:"A ___ remark can hurt someone deeply, even if it was meant as a joke.",                                            ans:"offensive",       opts:["offensive","authentic","long-term","portable"] },
+];
+
+// ── Normalise: add id ─────────────────────────────────────────────────────────
+ALL_Q.forEach((q,i)=>q._id=i);
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let setA=[], setB=[], activeSet=[], setIndex=0;
+let answered={}, scoreOk=0, scoreNo=0;
+
+function shuffle(a){
+  const r=[...a];
+  for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}
+  return r;
+}
+
+// Build two 30-question sets ensuring every unique answer word appears ≥ once
+function buildSets(){
+  const pool = shuffle([...ALL_Q]);
+  // collect unique answer words
+  const words = [...new Set(pool.map(q=>q.ans))];
+  const used = new Set();
+  const setA_ids = new Set();
+  // first pass: pick one question per word
+  words.forEach(w=>{
+    const q = pool.find(q=>q.ans===w && !used.has(q._id));
+    if(q){ used.add(q._id); setA_ids.add(q._id); }
+  });
+  // fill setA to 30 from remaining
+  const remaining = pool.filter(q=>!used.has(q._id));
+  let ri=0;
+  while(setA_ids.size < 30 && ri<remaining.length){
+    setA_ids.add(remaining[ri]._id); ri++;
+  }
+  setA = shuffle(pool.filter(q=>setA_ids.has(q._id))).slice(0,30);
+  setB = shuffle(pool.filter(q=>!setA_ids.has(q._id)));
+  // ensure setB also has each word at least once — swap if needed
+  const bWords = new Set(setB.map(q=>q.ans));
+  words.forEach(w=>{
+    if(!bWords.has(w)){
+      // find in setA a question that has a duplicate answer in setA
+      const dup = setA.find(q=>q.ans===w);
+      if(dup){ setB.push(dup); setA=setA.filter(q=>q._id!==dup._id); }
+    }
+  });
+  setB = shuffle(setB).slice(0,30);
+  // shuffle options inside each question
+  [...setA,...setB].forEach(q=>{ q._opts = shuffle(q.opts); });
+}
+
+function loadSet(idx){
+  activeSet = idx===0 ? setA : setB;
+  setIndex = idx;
+  answered={}; scoreOk=0; scoreNo=0;
+  document.getElementById('set-badge').textContent = `SET ${idx+1} / 2`;
+  updScore(); render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const g=document.getElementById('grid');
+  g.innerHTML='';
+  activeSet.forEach((q,vi)=>{
+    const st=answered[q._id], done=!!st, isOk=done&&st.correct;
+    const pts=q.s.split('___');
+    const blankCls='blank'+(done?(isOk?' ok':' no'):'');
+    const blankTxt=done?q.ans:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+
+    const chips=(q._opts||shuffle(q.opts)).map(opt=>{
+      let cls='chip';
+      if(done){if(opt===q.ans)cls+=' cok';else if(st.chosen===opt)cls+=' cno';}
+      return `<button class="${cls}"${done?' disabled':''} onclick="doAnswer(${q._id},'${opt.replace(/'/g,"\\'")}',this)">${opt}</button>`;
+    }).join('');
+
+    let res='';
+    if(done){
+      const info = DICT[q.ans] || {en:'—',tr:'—'};
+      const icon=isOk?'✅':'❌';
+      const top=isOk
+        ?`${icon} <strong>${q.ans}</strong> — Doğru!`
+        :`${icon} Seçtiğin: <em>${st.chosen}</em> — Doğru: <strong>${q.ans}</strong>`;
+      res=`<div class="result ${isOk?'ok':'no'} show">
+        ${top}
+        <div class="mline">📖 ${info.en}</div>
+        <div class="trline">🇹🇷 ${info.tr}</div>
+      </div>`;
+    }
+
+    const card=document.createElement('div');
+    card.className='qcard';
+    card.style.animationDelay=(vi*.03)+'s';
+    card.id='card-'+q._id;
+    card.innerHTML=`
+      <div class="qnum">SORU ${vi+1} / ${activeSet.length}</div>
+      <div class="sentence">${pts[0]}<span class="${blankCls}" id="bl-${q._id}">${blankTxt}</span>${pts[1]||''}</div>
+      <div class="chips-lbl">📝 Doğru kelimeyi seç:</div>
+      <div class="chips">${chips}</div>
+      ${res}`;
+    g.appendChild(card);
+  });
+  updProg(); checkFinish();
+}
+
+function doAnswer(id, chosen){
+  if(answered[id])return;
+  const q=activeSet.find(q=>q._id===id);
+  if(!q)return;
+  const isOk=chosen===q.ans;
+  answered[id]={correct:isOk,chosen};
+  if(isOk)scoreOk++;else scoreNo++;
+  updScore(); render();
+  setTimeout(()=>{
+    const bl=document.getElementById('bl-'+id);
+    if(bl){bl.classList.add(isOk?'pop':'shake');setTimeout(()=>bl.classList.remove('pop','shake'),400);}
+  },20);
+}
+
+function updScore(){
+  document.getElementById('s-ok').textContent=scoreOk;
+  document.getElementById('s-no').textContent=scoreNo;
+  const t=scoreOk+scoreNo;
+  document.getElementById('s-pct').textContent=t>0?Math.round(scoreOk/t*100)+'%':'—';
+}
+
+function updProg(){
+  const ans=Object.keys(answered).length;
+  document.getElementById('prog').style.width=(activeSet.length>0?(ans/activeSet.length*100):0)+'%';
+}
+
+function checkFinish(){
+  const fin=document.getElementById('finish');
+  if(Object.keys(answered).length===activeSet.length&&activeSet.length>0){
+    const pct=Math.round(scoreOk/activeSet.length*100);
+    document.getElementById('fscore').textContent=pct+'%';
+    document.getElementById('fmsg').textContent=
+      pct>=85?'🏆 Mükemmel! Harika bir sonuç!':
+      pct>=65?'👍 Güzel iş! Biraz daha pratik yap.':
+              '💪 Daha fazla çalış — başarabilirsin!';
+    fin.classList.add('show');
+    fin.scrollIntoView({behavior:'smooth',block:'nearest'});
+  } else fin.classList.remove('show');
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────────
+function doShuffle(){
+  // switch to the other set
+  buildSets();
+  const nextIdx = setIndex===0?1:0;
+  document.getElementById('finish').classList.remove('show');
+  loadSet(nextIdx);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function doClear(){
+  answered={}; scoreOk=0; scoreNo=0;
+  activeSet.forEach(q=>{q._opts=shuffle(q.opts);});
+  document.getElementById('finish').classList.remove('show');
+  updScore(); render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function doRestart(){
+  buildSets();
+  document.getElementById('finish').classList.remove('show');
+  loadSet(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleTheme(){
+  const h=document.documentElement;
+  const dark=h.dataset.theme==='dark';
+  h.dataset.theme=dark?'light':'dark';
+  document.getElementById('tbtn').textContent=dark?'🌙':'☀️';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+buildSets();
+loadSet(0);
+</script>
+</body>
+</html>
